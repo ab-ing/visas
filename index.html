@@ -1,0 +1,453 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Visas Kairnial</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,300..800&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout : une question par écran — « validé ou commentaire ? » : 4 compteurs, puis la liste, une ligne par document */
+:root{
+  --bg:#E9EBE8; --paper:#F6F7F5; --ink:#15181B; --mute:#666C71; --line:#C8CCC8; --hair:#DADDD9; --accent:#24486A;
+  --ok:#2E6A4E; --obs:#B37A14; --rej:#B0402E; --att:#5F7F9C; --inf:#8A8F93;
+  --f-disp:"Archivo","Helvetica Neue",Arial,sans-serif; --f-mono:"IBM Plex Mono",ui-monospace,Consolas,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#111315; --paper:#181B1E; --ink:#E4E6E3; --mute:#91979B; --line:#353A3F; --hair:#262A2E; --accent:#8DB3D6;
+  --ok:#5FAF85; --obs:#D9A23E; --rej:#E06A55; --att:#7FA3C4; --inf:#7C8286; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#111315; --paper:#181B1E; --ink:#E4E6E3; --mute:#91979B; --line:#353A3F; --hair:#262A2E; --accent:#8DB3D6;
+  --ok:#5FAF85; --obs:#D9A23E; --rej:#E06A55; --att:#7FA3C4; --inf:#7C8286; color-scheme:dark}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--f-disp);font-size:14px;line-height:1.45}
+.wrap{max-width:1280px;margin:0 auto;padding-inline:clamp(16px,3vw,40px);padding-block:28px 64px;display:flex;flex-direction:column;gap:22px}
+h1{margin:0;font-size:clamp(26px,3.6vw,40px);font-weight:780;text-transform:uppercase;line-height:1;font-variation-settings:"wdth" 116;text-wrap:balance}
+.eyebrow{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--mute);font-weight:600}
+.mono{font-family:var(--f-mono);font-size:11.5px}
+.num{font-variant-numeric:tabular-nums}
+button,select,input{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+header{display:flex;justify-content:space-between;align-items:end;gap:16px;flex-wrap:wrap;border-bottom:1.5px solid var(--ink);padding-bottom:14px}
+header p{margin:6px 0 0;color:var(--mute);max-width:70ch}
+.tabs{display:flex;gap:0;flex-wrap:wrap}
+.tab{border:1.5px solid var(--ink);background:transparent;padding:10px 16px;cursor:pointer;font-weight:650;text-align:left}
+.tab + .tab{border-left:0}
+.tab small{display:block;font-weight:400;color:var(--mute);font-size:12px}
+.tab[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+.tab[aria-pressed="true"] small{color:var(--paper);opacity:.75}
+.tiles{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+@media (max-width:860px){.tiles{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:440px){.tiles{grid-template-columns:1fr}}
+.tile{background:var(--paper);border:1px solid var(--line);border-top:6px solid var(--c);padding:16px 18px;text-align:left;cursor:pointer;display:flex;flex-direction:column;gap:4px;min-width:0}
+.tile:hover{border-color:var(--c)}
+.tile[aria-pressed="true"]{outline:2.5px solid var(--c);outline-offset:-2.5px}
+.tile .n{font-size:clamp(34px,4.4vw,52px);font-weight:740;line-height:1;color:var(--c);font-variant-numeric:tabular-nums;font-variation-settings:"wdth" 92}
+.tile .l{font-size:15px;font-weight:680}
+.tile .s{font-size:12.5px;color:var(--mute)}
+.bar{display:flex;height:14px;border:1px solid var(--ink);background:var(--paper)}
+.bar i{display:block;height:100%}
+.minor{font-size:12.5px;color:var(--mute)}
+.minor button{background:none;border:0;color:var(--accent);text-decoration:underline;cursor:pointer;padding:0}
+.tools{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.tools input[type=search]{flex:1 1 260px}
+select,input[type=search]{background:var(--paper);border:1px solid var(--line);padding:8px 10px;border-radius:0;min-width:0}
+.count{color:var(--mute);font-size:12.5px}
+.tw{overflow-x:auto;border:1px solid var(--line);background:var(--paper)}
+table{border-collapse:collapse;width:100%;min-width:900px}
+th{font-size:10.5px;text-transform:uppercase;letter-spacing:.1em;color:var(--mute);text-align:left;font-weight:600;padding:10px 12px;border-bottom:1.5px solid var(--ink);white-space:nowrap}
+td{padding:11px 12px;border-bottom:1px solid var(--hair);vertical-align:top}
+tr.d td:first-child{box-shadow:inset 5px 0 0 var(--c)}
+.pill{display:inline-block;font-weight:720;font-size:13px;color:var(--paper);background:var(--c);padding:4px 10px;white-space:nowrap}
+.pill small{font-weight:500;opacity:.85;margin-left:6px;font-family:var(--f-mono);font-size:11px}
+.when{display:block;margin-top:5px;font-size:12px;color:var(--mute)}
+.ti{font-weight:640;font-size:14px;line-height:1.3}
+.code{color:var(--mute)}
+.ind{font-family:var(--f-mono);font-size:13px;font-weight:500}
+.rv{display:flex;flex-direction:column;gap:5px}
+.r{display:flex;gap:8px;align-items:baseline;font-size:12.5px;flex-wrap:wrap}
+.r .who{color:var(--mute);min-width:96px}
+.r b{color:var(--c);font-weight:700;white-space:nowrap}
+.pj{display:flex;flex-direction:column;gap:4px}
+.pj button{background:none;border:0;padding:0;text-align:left;cursor:pointer;font-family:var(--f-mono);font-size:11px;color:var(--accent);overflow-wrap:anywhere}
+.pj button:hover{text-decoration:underline}
+.pj .by{font-family:var(--f-disp);font-size:10.5px;color:var(--mute);text-transform:uppercase;letter-spacing:.08em}
+.m{border-left:3px solid var(--c);padding:2px 0 2px 10px;display:flex;flex-direction:column;gap:4px}
+.m .mh{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
+.m .mh b{color:var(--c);font-size:13px}
+.m .mc{font-size:13px}
+.m .none{font-size:12px;color:var(--mute);font-style:italic}
+.hc{display:flex;flex-direction:column;gap:6px;margin-top:8px}
+.hc .hh{font-size:10.5px;color:var(--mute);text-transform:uppercase;letter-spacing:.08em}
+.he{border-left:3px solid var(--c);padding:1px 0 1px 10px;font-size:12.5px}
+.he .hw{display:flex;gap:8px;align-items:baseline;flex-wrap:wrap}
+.he .hw b{color:var(--c)}
+.he .tx{white-space:pre-line;margin-top:2px}
+.he .no{color:var(--mute);font-style:italic}
+.rem{--c:var(--att)}
+details.old{margin-top:6px}
+details.old summary{cursor:pointer;font-size:12px;color:var(--accent)}
+.ib{font-family:var(--f-mono);font-size:10.5px;color:var(--mute);margin-top:6px}
+/* suivi « traité » */
+.dn{display:inline-flex;align-items:center;gap:7px;cursor:pointer;font-size:12.5px;font-weight:600;white-space:nowrap}
+.dn input{width:20px;height:20px;accent-color:var(--ok);cursor:pointer;margin:0}
+.dn small{display:block;font-weight:400;color:var(--mute);font-size:11px}
+tr.d.done td{opacity:.55}
+tr.d.done td:first-child,tr.d.done td.dc{opacity:1}
+.grp li.done span:not(.mono){text-decoration:line-through;color:var(--mute)}
+.grp li input{width:16px;height:16px;accent-color:var(--ok);margin:0;flex:none;cursor:pointer}
+.nt{display:block;width:100%;min-width:170px;margin-top:8px;font:inherit;font-size:12.5px;color:var(--ink);background:var(--paper);border:1px solid var(--line);padding:6px 8px;resize:vertical;min-height:34px;border-radius:0}
+.nt:focus{border-color:var(--accent)}
+.nt.rp{border-left:3px solid var(--ok)}
+.nt.rp.has{border-color:var(--ok);background:color-mix(in srgb,var(--ok) 7%,var(--paper))}
+.grp li .nn.rp{color:var(--ok)}
+.nt.has{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 6%,var(--paper))}
+.grp li{align-items:center}
+.grp li input[type=checkbox]{width:16px;height:16px}
+.grp li .lin{height:auto;width:100%;display:block;margin-top:2px;cursor:text;border-left-color:var(--accent)}
+.grp li .lin.rp{border-left-color:var(--ok)}
+.grp li .lin.rsp{border-left-color:var(--att)}
+.gc{display:block;margin:8px 0 4px;font-size:10.5px;color:var(--mute);text-transform:uppercase;letter-spacing:.08em}
+.gc input{display:block;width:100%;margin-top:3px;font:inherit;font-size:13px;text-transform:none;letter-spacing:0;color:var(--ink);background:var(--paper);border:1px solid var(--line);border-left:3px solid var(--accent);padding:6px 9px;border-radius:0}
+.gc.w{max-width:420px}
+.lk{display:inline-flex;flex-wrap:wrap;gap:4px;margin-top:5px}
+.lk .linkb{font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;text-decoration:none;border:1px solid var(--line);padding:2px 6px;color:var(--accent);background:transparent;cursor:pointer}
+.lk .linkb:hover{border-color:var(--accent)}
+.grp li .lk,.prow .lk{margin-top:0}
+.grp li.done .lk .linkb{text-decoration:none}
+.c-S{--k:var(--ink)} .c-D{--k:var(--accent)} .c-C,.c-P,.c-B,.c-R,.c-A{--k:var(--mute)}
+.pleg i.c-S,.pleg i.c-D,.pleg i.c-B{background:var(--k)}
+.pt u{grid-column:1/3;text-decoration:none;font-size:8px;font-weight:700;letter-spacing:.04em;text-align:center;padding:2px 0;color:var(--paper);background:var(--k)}
+.c-N{--k:var(--inf)}
+.chip.big[class*=" c-"]{border-left:4px solid var(--k)}
+.cg{background:var(--paper);border:1px solid var(--line);padding:10px 14px}
+.cg.st-done{opacity:.6}
+.cg.st-enc{border-left:4px solid var(--obs)}
+.cgh{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:center;font-size:13px;margin-bottom:8px}
+.cgh b{font-weight:650}
+.cgh .ecl input{width:16px;height:16px;margin:0;cursor:pointer}
+.cin{flex:1 1 240px;min-width:180px;font:inherit;font-size:12.5px;color:var(--ink);background:var(--paper);border:1px solid var(--line);border-left:3px solid var(--accent);padding:4px 8px;border-radius:0}
+.cin.has{background:color-mix(in srgb,var(--accent) 7%,var(--paper))}
+.pcd-l{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:5px}
+.pcd-l li{display:flex;flex-wrap:wrap;gap:4px 10px;align-items:baseline;font-size:12.5px;padding:5px 8px;background:var(--bg);border-left:3px solid var(--line)}
+.pcd-l li.k-S{border-left-color:var(--ink)} .pcd-l li.k-D{border-left-color:var(--accent)}
+.mic{position:fixed;z-index:70;display:none;width:26px;height:26px;padding:0;align-items:center;justify-content:center;cursor:pointer;border:1px solid var(--line);background:var(--paper);color:var(--accent)}
+.mic.on{display:flex}
+.mic svg{width:14px;height:14px;fill:currentColor}
+.mic.rec{background:var(--accent);border-color:var(--accent);color:var(--paper);animation:micp 1.1s ease-in-out infinite}
+@keyframes micp{50%{opacity:.55}}
+@media (prefers-reduced-motion:reduce){.mic.rec{animation:none}}
+@media print{.mic{display:none!important}}
+.cgt{font-size:13px;text-transform:uppercase;letter-spacing:.06em;margin:18px 0 6px;display:flex;gap:10px;align-items:baseline}
+.cgt small{font-weight:400;color:var(--mute);text-transform:none;letter-spacing:0}
+.cirt{display:inline-block;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--mute);border:1px solid var(--line);padding:0 5px;margin:2px 6px 2px 0}
+tr.grpw td{background:var(--bg);font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:.06em;border-top:1.5px solid var(--ink);padding:8px 10px}
+tr.grpw small{font-weight:400;color:var(--mute);text-transform:none;letter-spacing:0;margin-left:10px}
+.pdfl{flex:none;font-size:11px;font-weight:650;color:var(--accent);border:1px solid var(--accent);padding:1px 7px;text-decoration:none;white-space:nowrap}
+.pdfl:hover{background:var(--accent);color:var(--paper)}
+.pcd{flex-basis:100%;margin:2px 0 4px}
+.pcd summary{font-size:12px;color:var(--accent);cursor:pointer}
+.pcd ul{list-style:none;margin:6px 0 0;padding:0;display:flex;flex-direction:column;gap:5px}
+.pcd li{display:flex;flex-wrap:wrap;gap:4px 10px;align-items:baseline;font-size:12.5px;padding:5px 8px;background:var(--bg);border-left:3px solid var(--k,var(--line))}
+.pcd li:has(.c-S){--k:var(--ink)} .pcd li:has(.c-D){--k:var(--accent)}
+.pcb{flex:none;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;padding:2px 6px;color:var(--paper);background:var(--k)}
+.pct{flex-basis:100%;white-space:pre-line}
+.s-ok{--c:var(--ok)} .s-obs{--c:var(--obs)} .s-rej{--c:var(--rej)} .s-att{--c:var(--att)} .s-inf,.s-nov{--c:var(--inf)} .s-none{--c:transparent}
+.chips.lvl{margin:8px 0 0;gap:4px}
+.chips.lvl .chip{padding:5px 10px;font-size:12.5px}
+.lvl-l{font-size:12px;color:var(--mute);margin:0 6px 0 0}
+.chips.lvl .chip + .lvl-l{margin-left:8px}
+.rst{display:inline-flex;align-items:center;gap:7px;font-size:13px;font-weight:650;border:1px solid var(--line);background:var(--paper);padding:7px 12px;cursor:pointer}
+.rst input{width:16px;height:16px;margin:0;accent-color:var(--rej)}
+.pleg{display:flex;flex-wrap:wrap;gap:6px 16px;align-items:center;font-size:12px;color:var(--mute);margin:10px 0 14px}
+.pleg b{color:var(--ink);font-size:13px;margin-right:6px}
+.pleg span{display:inline-flex;align-items:center;gap:6px}
+.pleg i{display:inline-block;width:14px;height:14px;background:var(--c);border:1px solid var(--c)}
+.pleg i.s-none{border:1px dashed var(--mute)}
+.pg2{background:var(--paper);border:1px solid var(--line);border-left:5px solid var(--gc,var(--line));padding:14px 16px}
+.pg2 h3{margin:0;font-size:17px;font-weight:700;display:flex;flex-wrap:wrap;gap:6px 14px;align-items:baseline}
+.pg2 h3 small{font-size:12.5px;font-weight:500;color:var(--mute)}
+.pg2 h3 small b{color:var(--rej)}
+.pbar{display:flex;height:10px;margin:9px 0 3px;background:var(--hair)}
+.pbar i{display:block;height:100%;background:var(--c)}
+.pbar.b{height:5px;margin:0 0 4px;opacity:.85}
+.pbl{font-size:10.5px;color:var(--mute);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px}
+.ptiles{display:flex;flex-wrap:wrap;gap:4px;margin:8px 0 4px}
+.ptl{font-size:10.5px;color:var(--mute);text-transform:uppercase;letter-spacing:.08em;flex-basis:100%;margin-top:6px}
+.pt{display:grid;grid-template-columns:1fr 1fr;width:62px;border:1px solid var(--line);background:var(--bg);font-family:'IBM Plex Mono',monospace;font-size:10.5px;line-height:1;cursor:default}
+.pt b{grid-column:1/3;text-align:center;padding:4px 0 3px;font-weight:600}
+.pt i{font-style:normal;font-size:8.5px;font-weight:700;text-align:center;padding:3px 0;color:#fff;background:var(--c)}
+.pt i.s-none{color:var(--mute);box-shadow:inset 0 0 0 1px var(--hair)}
+.pt.val{opacity:.55}
+.pg2 details{margin-top:8px}
+.pg2 summary{cursor:pointer;font-size:12.5px;color:var(--accent)}
+.prow{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;font-size:12.5px;padding:6px 0;border-top:1px solid var(--hair)}
+.prow .mono{flex:none}
+.prow .ti{flex:1 1 260px}
+.prow .ecl input{width:16px;height:16px;margin:0;cursor:pointer}
+.prow input.rsp{flex:0 1 190px;min-width:140px;border-left-color:var(--att)}
+.pt.st-enc{box-shadow:0 0 0 2px var(--att)}
+.pt.st-done b::after{content:" ✓";color:var(--ok)}
+.prow.st-done .ti{color:var(--mute)}
+.prow input[type=text]{flex:1 1 220px;min-width:160px;font:inherit;font-size:12.5px;color:var(--ink);background:var(--paper);border:1px solid var(--line);border-left:3px solid var(--accent);padding:4px 8px;border-radius:0}
+.prow input[type=text].has{background:color-mix(in srgb,var(--accent) 7%,var(--paper))}
+.pv{display:inline-block;flex:none;min-width:86px;font-family:'IBM Plex Mono',monospace;font-size:10.5px;font-weight:600;padding:3px 6px;color:#fff;background:var(--c);border:1px solid var(--c);text-align:center}
+.pv.s-none{color:var(--mute);border:1px dashed var(--mute)}
+.gall{display:flex;gap:18px;margin:10px 0 6px}
+.gall .ecl{font-size:12.5px;font-weight:600;color:var(--ink)}
+.gall input{width:16px;height:16px;margin:0;cursor:pointer}
+.gc.w input{border-left-color:var(--att)}
+.gc.rp input{border-left-color:var(--ok)}
+.grp li.done input,.grp li.done label{text-decoration:none}
+.grp li.done input::placeholder{text-decoration:none}
+.gc input.has{background:color-mix(in srgb,var(--accent) 7%,var(--paper))}
+.grp li .lf{flex-basis:100%;display:flex;gap:10px;flex-wrap:wrap;padding:2px 0 8px 0}
+.grp li .lf label{flex:1 1 260px;font-size:10.5px;color:var(--mute);text-transform:uppercase;letter-spacing:.08em}
+.grp li .lf label.w{flex:0 1 220px}
+.grp li .lf input{text-transform:none;letter-spacing:0}
+.ecl{display:inline-flex;align-items:center;gap:4px;font-size:11.5px;color:var(--mute);cursor:pointer;white-space:nowrap}
+.ecl input{accent-color:var(--att)}
+.ecl.f input{accent-color:var(--ok)}
+.dn.e input{accent-color:var(--att)}
+.dc .dn{display:flex;margin-bottom:6px}
+.rs{display:block;font-size:10.5px;color:var(--mute);text-transform:uppercase;letter-spacing:.08em;margin-top:6px}
+.rs{margin-bottom:6px}
+.rs input{display:block;width:100%;min-width:170px;margin-top:3px;font:inherit;font-size:12.5px;text-transform:none;letter-spacing:0;color:var(--ink);background:var(--paper);border:1px solid var(--line);border-left:3px solid var(--att);padding:5px 8px;border-radius:0}
+.grp li .lin{flex:1 1 240px;min-width:160px;font:inherit;font-size:12.5px;color:var(--ink);background:var(--paper);border:1px solid var(--line);border-left:3px solid var(--ok);padding:4px 8px;border-radius:0;text-decoration:none}
+.grp li .lin:focus{border-color:var(--ok)}
+.grp li .lin.has{background:color-mix(in srgb,var(--ok) 7%,var(--paper))}
+.grp li .nn{color:var(--accent);font-style:italic;flex-basis:100%;padding-left:26px}
+.suivi{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;border:1.5px solid var(--ink);background:var(--paper);padding:10px 14px;position:sticky;top:0;z-index:3}
+.suivi .pg{flex:1 1 380px;display:flex;align-items:center;gap:10px;min-width:0}
+.suivi .pg b{font-size:15px;white-space:nowrap;font-variant-numeric:tabular-nums}
+.suivi .pb{flex:1;height:10px;background:var(--hair);min-width:60px}
+.suivi .pb{display:flex}
+.suivi .pb i{display:block;height:100%;background:var(--ok)}
+.suivi .pb i.e{background:var(--att)}
+.encb{color:var(--att)}
+.enct{display:inline-block;margin-top:6px;font-size:11.5px;font-weight:650;color:var(--att);border:1px solid var(--att);padding:2px 7px}
+tr.d.enc td.dc{box-shadow:inset 0 3px 0 var(--att)}
+.chip small.en2{color:var(--att);opacity:1;font-weight:700}
+.chip[aria-pressed="true"] small.en2{color:#A9C6E0}
+.grp li.enc span.code{color:var(--att);font-weight:600}
+.btn{border:1px solid var(--ink);background:var(--ink);color:var(--paper);padding:8px 13px;font-size:12.5px;font-weight:600;cursor:pointer}
+.btn.ghost{background:transparent;color:var(--ink)}
+.suivi .pie{width:54px;height:54px;flex:none;transform:rotate(-90deg);border-radius:50%}
+.suivi .pie circle{fill:none;stroke-width:16}
+.suivi .pie .a-done{stroke:var(--ok)} .suivi .pie .a-enc{stroke:var(--obs)} .suivi .pie .a-todo{stroke:var(--line)}
+.suivi .pgl{display:flex;flex-wrap:wrap;gap:3px 16px;align-items:center;min-width:0}
+.suivi .pgl > b{flex-basis:100%;font-size:14px}
+.suivi .lg{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;color:var(--mute);white-space:nowrap}
+.suivi .lg b{font-size:15px;color:var(--ink);font-variant-numeric:tabular-nums}
+.suivi .lg i{display:inline-block;width:11px;height:11px}
+.suivi .lg i.a-done{background:var(--ok)} .suivi .lg i.a-enc{background:var(--obs)} .suivi .lg i.a-todo{background:var(--line)}
+.suivi .st{font-size:12px;color:var(--mute)}
+.linkb{background:none;border:0;color:var(--accent);text-decoration:underline;cursor:pointer;padding:0;font-size:12.5px}
+/* vue par type de plan */
+.chips{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.chip{border:1px solid var(--line);background:var(--paper);padding:7px 12px;cursor:pointer;font-size:13px}
+.chip:hover{border-color:var(--mute)}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.chip.big{font-weight:680;font-size:14px;padding:10px 16px}
+.chip small{opacity:.7;margin-left:6px;font-variant-numeric:tabular-nums}
+.chip small.dn2{color:var(--ok);opacity:1;font-weight:700}
+.chip[aria-pressed="true"] small.dn2{color:#8FD3AE}
+.chip.alld{border-color:var(--ok)}
+.grp{background:var(--paper);border:1px solid var(--line);border-left:6px solid var(--c);padding:12px 16px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px 18px}
+.grp .gh{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap;font-size:12.5px;color:var(--mute)}
+.grp .gh .pill{font-size:12px;padding:2px 8px}
+.grp .gt{white-space:pre-line;font-size:14px;grid-column:1}
+.grp .gn{font-size:26px;font-weight:740;color:var(--c);line-height:1;text-align:right;font-variant-numeric:tabular-nums;grid-row:1 / span 2;grid-column:2}
+.grp .gn small{display:block;font-size:11px;font-weight:500;color:var(--mute)}
+.grp details{grid-column:1 / -1}
+.grp summary{cursor:pointer;font-size:12.5px;color:var(--accent)}
+.grp ul{margin:6px 0 0;padding:0;list-style:none;display:flex;flex-direction:column;gap:3px;max-height:260px;overflow:auto}
+.grp li{font-size:12.5px;display:flex;gap:10px;flex-wrap:wrap}
+.grp li .mono{flex:none}
+.glist{display:flex;flex-direction:column;gap:10px}
+.sech{font-size:13px;text-transform:uppercase;letter-spacing:.1em;font-weight:700;margin:10px 0 0;border-bottom:1.5px solid var(--ink);padding-bottom:6px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.sech span{font-weight:500;color:var(--mute);letter-spacing:0;text-transform:none}
+#vdocs,#vtypes{display:flex;flex-direction:column;gap:22px}
+.nx{display:inline-block;margin-top:6px;font-size:11.5px;border:1px dashed var(--c);color:var(--c);padding:1px 7px}
+.more{align-self:center;border:1px solid var(--ink);background:transparent;padding:8px 16px;cursor:pointer;font-weight:600}
+.empty{padding:24px;text-align:center;color:var(--mute)}
+.ok{--c:var(--ok)} .obs{--c:var(--obs)} .rej{--c:var(--rej)} .att{--c:var(--att)} .inf{--c:var(--inf)} .nov{--c:var(--inf)}
+footer{font-size:12.5px;color:var(--mute);border-top:1px solid var(--line);padding-top:14px}
+footer ul{margin:6px 0 0;padding-left:18px}
+.toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:var(--ink);color:var(--paper);padding:9px 16px;font-size:13px;opacity:0;pointer-events:none;transition:opacity .2s}
+.toast.show{opacity:1}
+</style>
+<style>
+/* Ajouts de la version en ligne : barre de connexion, écrans d'accueil */
+.barre{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;justify-content:space-between;font-size:12.5px;color:var(--mute);border-bottom:1px solid var(--hair);padding-bottom:8px}
+.barre b{color:var(--ink);font-weight:600}
+.barre .act{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.barre .enligne i{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--ok);margin-right:6px;vertical-align:1px}
+.barre .hors i{background:var(--rej)}
+.ecran{max-width:440px;margin:12vh auto 0;padding:0 16px;display:flex;flex-direction:column;gap:14px}
+.ecran h1{font-size:30px}
+.ecran p{margin:0;color:var(--mute)}
+.ecran form{display:flex;flex-direction:column;gap:10px;background:var(--paper);border:1px solid var(--line);padding:18px}
+.ecran label{display:flex;flex-direction:column;gap:4px;font-size:12.5px;font-weight:600}
+.ecran input{background:var(--bg);border:1px solid var(--line);padding:9px 10px;border-radius:0;font-size:14px}
+.ecran .btn{padding:10px 14px;font-size:13px}
+.ecran .err{color:var(--rej);font-size:13px;min-height:1.2em}
+.prog{height:6px;border:1px solid var(--line);background:var(--paper)}
+.prog i{display:block;height:100%;background:var(--accent);width:0;transition:width .2s}
+</style>
+</head>
+<body>
+<div class="ecran" id="ecran">
+  <span class="eyebrow">AB Ingénieurs · Structure</span>
+  <h1>Visas Kairnial</h1>
+  <p id="ecran-msg">Chargement…</p>
+  <form id="connexion" hidden>
+    <label>Adresse e-mail<input type="email" id="c-mail" autocomplete="username" required></label>
+    <label>Mot de passe<input type="password" id="c-mdp" autocomplete="current-password" required></label>
+    <button class="btn" type="submit">Se connecter</button>
+    <span class="err" id="c-err" role="alert"></span>
+    <p style="font-size:12.5px">Pas encore de compte, ou mot de passe oublié : demande à Tony Varin ou à Hubert Magne.</p>
+  </form>
+  <form id="nouveau-mdp" hidden>
+    <label>Nouveau mot de passe (10 caractères au moins)<input type="password" id="n-mdp" autocomplete="new-password" minlength="10" required></label>
+    <button class="btn" type="submit">Enregistrer le mot de passe</button>
+    <button class="btn ghost" type="button" id="n-annule">Annuler</button>
+    <span class="err" id="n-err" role="alert"></span>
+  </form>
+  <div id="premier-import" hidden>
+    <p>Aucune donnée pour ce projet. Importe le dernier fichier « Recap visas » (HTML) : ses plans, visas, commentaires et coches deviennent la base commune.</p>
+    <p style="margin-top:12px"><button class="btn" type="button" data-import>Importer une version…</button></p>
+  </div>
+  <div class="prog" id="prog" hidden><i></i></div>
+</div>
+
+<div id="outil" hidden>
+<div class="wrap">
+<header>
+  <div>
+    <span class="eyebrow">Fairmont Grand Hôtel Geneva · Structure · AB Ingénieurs</span>
+    <h1>Visas Karnial</h1>
+    <p>Dernier indice de chaque document AB, tel qu'exporté de la GED le 16.11.2026 à 15 h 24. Une ligne par document : validé, validé avec commentaires, refusé ou en attente.</p>
+  </div>
+  <div class="tabs" id="tabs"></div>
+</header>
+
+<div class="suivi" id="suivi" aria-label="Suivi des plans traités"></div>
+
+<div id="vdocs">
+<div class="tiles" id="tiles"></div>
+<div class="bar" id="bar" role="img"></div>
+<div class="minor" id="minor"></div>
+
+<div class="tools">
+  <input type="search" id="q" placeholder="Rechercher un titre, un code, une pièce jointe…" aria-label="Rechercher">
+  <select id="fc" aria-label="Circuit"></select>
+  <select id="ft" aria-label="Type de document"></select>
+  <select id="ff" aria-label="Niveau"></select>
+  <select id="fz" aria-label="Zone"></select>
+  <select id="fr" aria-label="Responsable"></select>
+  <select id="fso" aria-label="Tri"></select>
+  <select id="fd" aria-label="Suivi"><option value="">Tous les états</option><option value="todo">À traiter</option><option value="enc">En cours de traitement</option><option value="done">Traités</option></select>
+  <span class="count" id="count"></span>
+</div>
+<div class="tw"><table>
+  <thead><tr><th>Statut</th><th>Document</th><th>Ind.</th><th>Motif : commentaires et pièce jointe du visa</th><th>Autres avis</th><th>Suivi : en cours, fait, responsable, commentaires</th></tr></thead>
+  <tbody id="tb"></tbody>
+</table></div>
+<button class="more" id="more" type="button" hidden>Afficher la suite</button>
+</div>
+
+<div id="vproj" hidden>
+  <div class="chips" id="pgrp"></div>
+  <div class="tools">
+    <input type="search" id="pq" placeholder="Rechercher un numéro, un code, un titre…" aria-label="Rechercher un plan">
+    <select id="po" aria-label="Partie d'ouvrage"></select>
+    <select id="pz" aria-label="Zone"></select>
+    <select id="pn" aria-label="Série de numéros"></select>
+    <select id="pt" aria-label="Type de plan"></select>
+    <select id="pm" aria-label="Visa MO"></select>
+    <select id="pb" aria-label="Visa BUR"></select>
+    <select id="pa" aria-label="Commentaires PDF à traiter par"></select>
+    <select id="ps" aria-label="État du suivi"></select>
+    <select id="pr" aria-label="En charge de la reprise"></select>
+    <label class="rst"><input type="checkbox" id="prest"> Reste à valider seulement</label>
+  </div>
+  <div class="chips lvl" id="pfc" role="group" aria-label="Niveaux"></div>
+  <div class="pleg" id="pleg"></div>
+  <div id="pout" style="display:flex;flex-direction:column;gap:14px"></div>
+</div>
+
+<div id="vcom" hidden>
+  <div class="chips" id="ccl"></div>
+  <div class="tools">
+    <input type="search" id="cq" placeholder="Rechercher dans les commentaires, les codes, les titres…" aria-label="Rechercher">
+    <select id="csrc" aria-label="Source"></select>
+    <select id="corg" aria-label="Émetteur"></select>
+    <select id="cph" aria-label="Type de plan"></select>
+    <select id="cz" aria-label="Zone"></select>
+    <select id="cf" aria-label="Niveau"></select>
+    <select id="cst" aria-label="État du suivi"></select>
+    <select id="cr" aria-label="Déposé sur Kairnial par"></select>
+    <select id="cso" aria-label="Tri"></select>
+    <label class="rst"><input type="checkbox" id="clast" checked> Dernier indice seulement</label>
+    <button class="btn ghost" type="button" id="pdfdir" title="Choisis les PDF « _reponse » téléchargés de Kairnial : ils sont rangés dans la base et les liens « Ouvrir le PDF » marchent pour tout le monde">Déposer des PDF de visa…</button>
+    <button class="btn ghost" type="button" id="cexp">Exporter cette liste (Excel)</button>
+  </div>
+  <div class="pleg" id="ccount"></div>
+  <div id="cout" style="display:flex;flex-direction:column;gap:10px"></div>
+</div>
+
+<div id="vtypes" hidden>
+  <div class="chips" id="tchips"></div>
+  <div class="tools">
+    <input type="search" id="tq" placeholder="Rechercher dans les commentaires…" aria-label="Rechercher dans les commentaires">
+    <select id="tscope" aria-label="Indices pris en compte"><option value="last">Dernier indice et reprises en cours</option><option value="old">Indices précédents seulement</option><option value="all">Tous les indices</option></select>
+    <select id="twho" aria-label="Émetteur de l'avis"></select>
+    <select id="tcir" aria-label="Circuit de l'avis"><option value="">Tous les circuits</option><option value="MO-AMO">Circuit MO-AMO</option><option value="SAS">Circuit SAS mandataires</option></select>
+    <select id="tfr" aria-label="Responsable"></select>
+    <select id="tfd" aria-label="État"><option value="">Tous les états</option><option value="todo">À traiter</option><option value="enc">En cours de traitement</option><option value="done">Traités</option></select>
+    <span class="count" id="tcount"></span>
+  </div>
+  <div class="chips" id="tclass"></div>
+  <div id="tout" style="display:flex;flex-direction:column;gap:14px"></div>
+</div>
+
+<footer>
+  <b>Lecture</b>
+  <ul>
+    <li><b>Validé</b> : VSO (MO), BPD, BPE ou NoC. <b>Validé avec commentaires</b> : VAO (MO) ou OBS. <b>Refusé / à reprendre</b> : REF, R&amp;R ou REJ. <b>En attente</b> : visa demandé, réponse non rendue.</li>
+    <li>Circuit MO-AMO : le statut est celui du visa du maître d'ouvrage. Circuit SAS mandataires : le statut résume les avis rendus (un seul refus suffit à classer le document en refusé, un seul commentaire en commentaires).</li>
+    <li><b>Commentaires</b> : ils viennent de la colonne « Historique » des exports (contrôle documentaire, SPV structure, Burckhardt). Le maître d'ouvrage n'y écrit pas : le motif d'un visa MO se lit dans la pièce jointe du visa, dont le nom est indiqué. Un clic copie ce nom pour retrouver le fichier dans Karnial.</li>
+    <li><b>Traité</b> : la coche « Fait » est enregistrée dans la base commune dès qu'on la pose : tous ceux qui ont la page ouverte la voient apparaître, sans recharger. Le champ « Commentaire » sous la coche est libre et s'enregistre de la même façon ; chaque saisie garde son auteur et son heure (journal du suivi). Une fois la coche « Fait » posée, un second champ « Après reprise » apparaît pour noter ce qui a été fait ; il part dans une colonne séparée de l'export. « Exporter le suivi (Excel) » produit un fichier CSV lisible dans Excel, avec les plans cochés ou commentés et leur commentaire.</li>
+    <li><b>Indices obsolètes</b> : tout avis porté sur un indice remplacé par un indice plus récent est traité d'office, avec le commentaire « Plan obsolète ». On peut le décocher ou changer le commentaire à la main.</li>
+    <li><b>En cours de traitement</b> : coche intermédiaire, posée à la main. Le responsable de la reprise est par défaut la personne qui a déposé l'indice sur Karnial ; il se modifie dans le champ « Responsable ». « Exporter qui reprend quoi » liste par responsable tout ce qui n'est pas encore traité.</li>
+    <li><b>Commentaires des PDF de visa</b> : texte des annotations lues dans les PDF de réponse téléchargés de Karnial (381 PDF), classées automatiquement par mots-clés selon qui doit les traiter : AB structure, AB dessin, coordination, SPVA, BR. Ce classement est un tri indicatif, à contrôler. Les remarques intégrées à l'image du plan, les nuages et flèches sans texte et les pièces jointes non téléchargées n'y figurent pas.</li>
+    <li><b>« Ne concerne pas AB »</b> : quand tous les commentaires d'un plan, dans les PDF de visa et dans l'historique Karnial, s'adressent à BR ou à SPVA, ce commentaire est posé d'office. Il se modifie ou s'efface à la main. Un plan qui porte un point de coordination ou un renvoi à un autre plan n'est pas marqué.</li>
+    <li><b>Tous les commentaires</b> : la page réunit le texte des annotations lues dans les PDF de visa et les commentaires de l'historique Karnial, regroupés par plan et classés automatiquement selon qui doit les traiter. Par défaut, seuls les commentaires portant sur le dernier indice de chaque plan sont affichés.</li>
+    <li><b>Ouvrir le PDF</b> : chaque commentaire lu dans un PDF de visa porte un lien qui ouvre ce PDF à la page du commentaire. Le lien vise la copie déposée dans l'outil (bouton « Déposer des PDF de visa… », page Tous les commentaires), sinon le lien de la pièce jointe chez Kairnial. Tant qu'aucun des deux n'existe, le bouton copie le nom du fichier.</li>
+    <li><b>Dictée</b> : en cliquant dans un champ de commentaire, un bouton micro apparaît à droite du champ (ou Alt+D). Le texte dicté s'ajoute à la suite du commentaire ; un second clic, Entrée ou Échap arrête et enregistre. Fonctionne dans Edge et Chrome avec une connexion internet : la voix est transcrite par le service en ligne du navigateur.</li>
+    <li><b>Déposer les PDF</b> : il suffit de les déposer une fois (les PDF « _reponse » du dossier OneDrive 2-Données de base / VISAs / Kairnial, tous d'un coup) ; un PDF déjà déposé est remplacé. Les liens marchent ensuite sur tous les postes, sans OneDrive synchronisé.</li>
+    <li><b>Pages liées</b> : le suivi (coches, responsable, commentaires) est commun à toutes les pages ; une saisie faite dans l'une se retrouve dans les autres. Sous chaque plan, des boutons ouvrent ce même plan dans les autres pages où il apparaît (Visa MO, SAS, Commentaires, Vue d'ensemble).</li>
+    <li><b>Vue d'ensemble du projet</b> : un plan par code de document. Le visa MO est celui rendu sur l'indice soumis au maître d'ouvrage ; le visa BUR est le dernier avis de Burckhardt, au SAS ou au circuit MO. « Reste à valider » : tout plan qui n'a pas un visa MO favorable sur son dernier indice déposé et qui n'est pas coché « fait » ; le nombre se met à jour à chaque coche. La partie d'ouvrage est déduite du titre du plan. Le commentaire de groupe est recopié dans le commentaire AB de chaque plan affiché du groupe. Les cases « en cours » et « fait » et le champ « en charge de la reprise » fonctionnent comme dans les autres pages, par plan ou pour tout le groupe ; une vignette encadrée de bleu est en cours, une vignette marquée ✓ est faite.</li>
+    <li><b>Comptage</b> : l'avancement compte des plans, c'est-à-dire des codes de document. Un plan présent à plusieurs indices (par exemple refusé par le maître d'ouvrage à l'indice 02 et redéposé au SAS à l'indice 03) n'est compté qu'une fois, à son indice le plus récent refusé ou commenté.</li>
+    <li><b>Coche automatique</b> : un avis porté sur un indice plus ancien que celui visé par le maître d'ouvrage est coché d'office, avec la mention « indice remplacé ». On peut le décocher à la main ; la page s'en souvient.</li>
+    <li><b>Type de plan</b> : Démolition (titre contenant démolition ou sciage), Armature (ARM), Liste (LIS), Coffrage (plans, élévations, coupes, détails), Notes (notes de calcul, rapports, descriptifs).</li>
+    <li>Sources : quatre exports « ged_excel_recap_file » du 16.11.2026 (MO-AMO listes et notes, MO-AMO plans, SAS mandataires, historique de tous les indices). Seuls les documents STR émis par ABI sont repris.</li>
+  </ul>
+</footer>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<datalist id="names"></datalist>
+</div>
+<input type="file" id="f-import" accept=".html,.htm,text/html" hidden>
+<input type="file" id="f-pdf" accept="application/pdf,.pdf" multiple hidden>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.58.0/dist/umd/supabase.min.js"></script>
+<script src="config.js"></script>
+<script src="hubert.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Visas Kairnial</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,300..800&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<!--STYLE-->
+<style>
+/* Ajouts de la version en ligne : barre de connexion, écrans d'accueil */
+.barre{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;justify-content:space-between;font-size:12.5px;color:var(--mute);border-bottom:1px solid var(--hair);padding-bottom:8px}
+.barre b{color:var(--ink);font-weight:600}
+.barre .act{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.barre .enligne i{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--ok);margin-right:6px;vertical-align:1px}
+.barre .hors i{background:var(--rej)}
+.ecran{max-width:440px;margin:12vh auto 0;padding:0 16px;display:flex;flex-direction:column;gap:14px}
+.ecran h1{font-size:30px}
+.ecran p{margin:0;color:var(--mute)}
+.ecran form{display:flex;flex-direction:column;gap:10px;background:var(--paper);border:1px solid var(--line);padding:18px}
+.ecran label{display:flex;flex-direction:column;gap:4px;font-size:12.5px;font-weight:600}
+.ecran input{background:var(--bg);border:1px solid var(--line);padding:9px 10px;border-radius:0;font-size:14px}
+.ecran .btn{padding:10px 14px;font-size:13px}
+.ecran .err{color:var(--rej);font-size:13px;min-height:1.2em}
+.prog{height:6px;border:1px solid var(--line);background:var(--paper)}
+.prog i{display:block;height:100%;background:var(--accent);width:0;transition:width .2s}
+</style>
+</head>
+<body>
+<div class="ecran" id="ecran">
+  <span class="eyebrow">AB Ingénieurs · Structure</span>
+  <h1>Visas Kairnial</h1>
+  <p id="ecran-msg">Chargement…</p>
+  <form id="connexion" hidden>
+    <label>Adresse e-mail<input type="email" id="c-mail" autocomplete="username" required></label>
+    <label>Mot de passe<input type="password" id="c-mdp" autocomplete="current-password" required></label>
+    <button class="btn" type="submit">Se connecter</button>
+    <span class="err" id="c-err" role="alert"></span>
+    <p style="font-size:12.5px">Pas encore de compte, ou mot de passe oublié : demande à Tony Varin ou à Hubert Magne.</p>
+  </form>
+  <form id="nouveau-mdp" hidden>
+    <label>Nouveau mot de passe (10 caractères au moins)<input type="password" id="n-mdp" autocomplete="new-password" minlength="10" required></label>
+    <button class="btn" type="submit">Enregistrer le mot de passe</button>
+    <button class="btn ghost" type="button" id="n-annule">Annuler</button>
+    <span class="err" id="n-err" role="alert"></span>
+  </form>
+  <div id="premier-import" hidden>
+    <p>Aucune donnée pour ce projet. Importe le dernier fichier « Recap visas » (HTML) : ses plans, visas, commentaires et coches deviennent la base commune.</p>
+    <p style="margin-top:12px"><button class="btn" type="button" data-import>Importer une version…</button></p>
+  </div>
+  <div class="prog" id="prog" hidden><i></i></div>
+</div>
+
+<div id="outil" hidden>
+<!--CORPS-->
+</div>
+<input type="file" id="f-import" accept=".html,.htm,text/html" hidden>
+<input type="file" id="f-pdf" accept="application/pdf,.pdf" multiple hidden>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.58.0/dist/umd/supabase.min.js"></script>
+<script src="config.js"></script>
+<script src="hubert.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
