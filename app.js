@@ -149,7 +149,7 @@
           date_visa: x.date_visa && !isNaN(new Date(x.date_visa)) ? new Date(x.date_visa).toISOString() : null, nom: String(x.nom || '').slice(0, 300) }));
       try {
         for (let i = 0; i < ok.length; i += 200) {
-          const { error } = await sb.from('visas_pdf_liens').upsert(ok.slice(i, i + 200), { onConflict: 'projet,url' });
+          const { error } = await sb.from('visas_pdf_liens').upsert(ok.slice(i, i + 200), { onConflict: 'projet,code,url' });
           if (error) throw error;
         }
         ok.forEach(x => { (LIENS[x.code] = LIENS[x.code] || []).push(x); });

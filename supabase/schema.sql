@@ -89,7 +89,7 @@ create table if not exists public.visas_pdf_liens (
   date_visa timestamptz,
   nom       text not null default '' check (char_length(nom) <= 300),
   ajoute_le timestamptz not null default now(),
-  primary key (projet, url)
+  primary key (projet, code, url)   -- une même pièce jointe peut servir à deux plans
 );
 create index if not exists visas_pdf_liens_code on public.visas_pdf_liens (projet, code);
 
