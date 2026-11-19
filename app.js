@@ -262,7 +262,7 @@
   // les coches, versées dans le suivi commun quand elles sont plus récentes.
   function tireDonnees(texte) {
     const D = {};
-    texte.split('\n').forEach(l => {
+    texte.split(/\r?\n/).forEach(l => {
       const m = l.match(/^const ([A-Z]+) = (.*)$/);
       if (!m || !DONNEES.includes(m[1]) || D[m[1]] !== undefined) return;
       let s = m[2];
